@@ -79,7 +79,7 @@ public class ObjectUtil {
 		return result;
 	}
 
-	/** 获取所有字段 */
+	/** 获取所有定义的字段，不包括继承的 */
 	public static List<String> getFields(Class<?> obj) {
 		if (obj == null) {
 			return new ArrayList<>();
@@ -97,6 +97,18 @@ public class ObjectUtil {
 			Loggers.err("get obj fields err", e);
 		}
 		return result;
+	}
+
+	/** 获取所有字段，包括继承的 */
+	public static List<Field> getAllFields(Class<?> clazz) {
+		List<Field> res = new ArrayList<>();
+		res.addAll(Arrays.asList(clazz.getDeclaredFields()));
+		Class<?> superClass = clazz.getSuperclass();
+		while (superClass != null) {
+			res.addAll(Arrays.asList(superClass.getDeclaredFields()));
+			superClass = superClass.getSuperclass();
+		}
+		return res;
 	}
 
 	/** `col1`,`col2`... */

@@ -1,7 +1,9 @@
 package com.jiuyi.frame.db.mappers;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
@@ -9,6 +11,7 @@ import org.objenesis.instantiator.ObjectInstantiator;
 
 import com.jiuyi.frame.annotations.Init;
 import com.jiuyi.frame.helper.Loggers;
+import com.jiuyi.frame.util.ObjectUtil;
 
 public class ClassInfo<T> {
 
@@ -16,10 +19,12 @@ public class ClassInfo<T> {
 	private ObjectInstantiator<T> instantiator;
 	private Method initMethod;
 	private Class<T> clazz;
+	private List<Field> allFields;
 
 	public ClassInfo(Class<T> clazz) {
 		this.clazz = clazz;
 		instantiator = objenesis.getInstantiatorOf(clazz);
+		this.allFields = ObjectUtil.getAllFields(clazz);
 		Method[] methods = clazz.getMethods();
 		for (Method method : methods) {
 			if (method.isAnnotationPresent(Init.class)) {
@@ -39,6 +44,10 @@ public class ClassInfo<T> {
 			}
 		}
 		return bean;
+	}
+
+	public List<Field> getAllFields() {
+		return this.allFields;
 	}
 
 	public Class<T> getClazz() {

@@ -74,6 +74,14 @@ public class AccessInterceptor extends HandlerInterceptorAdapter {
 		return true;
 	}
 
+	@Override
+	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+		super.afterCompletion(request, response, handler, ex);
+		if (ex != null) {
+			WebUtil.writeResp(response, ResultConst.SERVER_ERR);
+		}
+	}
+
 	protected ServerResult checkAccess(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 		/* 解析json参数 */
 		ServerResult parseRes = parseRequestBody(request);

@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.jdbc.core.RowMapper;
@@ -25,11 +26,10 @@ public class DefaultRowMapper<T> implements RowMapper<T> {
 	@Override
 	public T mapRow(ResultSet rs, int rowNum) throws SQLException {
 		ResultSetMetaData rsmd = rs.getMetaData();
-		Field[] fields = clazzInfo.getClazz().getDeclaredFields();
+		List<Field> fields = clazzInfo.getAllFields();
 		T bean = clazzInfo.newInstance();
 		try {
 			for (int _iterator = 0; _iterator < rsmd.getColumnCount(); _iterator++) {
-				// String columnName = rsmd.getColumnName(_iterator + 1);
 				/* label：如果有别名则为alias，否则为col name */
 				String columnName = rsmd.getColumnLabel(_iterator + 1);
 				Object columnValue = rs.getObject(_iterator + 1);

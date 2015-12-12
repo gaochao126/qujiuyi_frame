@@ -30,7 +30,7 @@ import com.jiuyi.frame.util.StringUtil;
 public class DbBase {
 
 	@Autowired
-	private MapperService mapperService;
+	protected MapperService mapperService;
 
 	protected JdbcTemplate jdbc;
 
@@ -43,10 +43,6 @@ public class DbBase {
 		this.jdbc = jdbc;
 	}
 
-	protected String getTableName() {
-		return null;
-	}
-
 	@Autowired
 	public void setDataSource(DataSource dataSource) {
 		if (!StringUtil.isNullOrEmpty(getTableName())) {
@@ -57,6 +53,10 @@ public class DbBase {
 	@Autowired
 	public void setJdbc(NamedParameterJdbcTemplate namedJdbc) {
 		this.namedJdbc = namedJdbc;
+	}
+
+	protected String getTableName() {
+		return null;
 	}
 
 	protected Integer queryForInteger(String sql) {

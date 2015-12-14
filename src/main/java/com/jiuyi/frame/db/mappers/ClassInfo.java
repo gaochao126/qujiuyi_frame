@@ -3,6 +3,7 @@ package com.jiuyi.frame.db.mappers;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.objenesis.Objenesis;
@@ -24,6 +25,7 @@ public class ClassInfo<T> {
 
 	public ClassInfo(Class<T> clazz) {
 		this.clazz = clazz;
+		this.fieldsInfo = new ArrayList<>();
 		instantiator = objenesis.getInstantiatorOf(clazz);
 		List<Field> allFields = ObjectUtil.getAllFields(clazz);
 		Method[] methods = clazz.getMethods();

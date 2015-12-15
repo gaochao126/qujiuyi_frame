@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
@@ -194,6 +195,15 @@ public class DbBase {
 	protected String formatSelectSql(String sql, Class<?> clazz, String... excepts) {
 		String columns = ObjectUtil.getFieldAsSelectColumns(clazz, excepts);
 		return String.format(sql, columns);
+	}
+
+	protected <T> List<T> queryForList(String sql, SqlParameterSource paramSource, Class<T> clazz) {
+		return namedJdbc.query(sql, paramSource, mapperService.getRowMapper(clazz));
+	}
+
+	protected <T> T queryForObject(String sql, SqlParameterSource paramSource, Class<T> clazz) {
+		List<T> list = queryForList(sql, paramSource, clazz);
+		return CollectionUtil.isNullOrEmpty(list) ? null : list.get(0);
 	}
 
 	/** 页码转为limit的第一个参数 */

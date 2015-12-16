@@ -10,12 +10,69 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 
 import com.jiuyi.frame.annotations.FromStr;
 import com.jiuyi.frame.annotations.NotInsert;
+import com.jiuyi.frame.front.ServerResult;
 import com.jiuyi.frame.helper.Loggers;
 
 public class ObjectUtil {
+
+	private static ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+	private static Validator validator = factory.getValidator();
+
+	/**
+	 * validate object with out put is hibernate out
+	 * 
+	 * @param obj
+	 * @return
+	 */
+	public static Set<ConstraintViolation<Object>> validate(Object obj) {
+		Set<ConstraintViolation<Object>> constraintViolations = validator.validate(obj);
+		return constraintViolations;
+	}
+
+	/**
+	 * validate object with my validate result
+	 * 
+	 * @param obj
+	 * @return
+	 */
+	public static ValidateResult validateRes(Object obj) {
+		return new ValidateResult(validate(obj));
+	}
+
+	/**
+	 * validate object with my validate result
+	 * 
+	 * @param obj
+	 * @return
+	 */
+	public static ServerResult validateResult(Object obj) {
+		return new ValidateResult(validate(obj)).toServerResult();
+	}
+
+	/**
+	 * 对list中的对象循环验证，如果有一个验证不通过，则返回失败
+	 * 
+	 * @param objs
+	 * @return
+	 */
+	public static ServerResult validateList(List<? extends Object> objs) {
+		for (Object obj : objs) {
+			ValidateResult validateRes = validateRes(obj);
+			if (!validateRes.isSuccess()) {
+				return validateRes.toServerResult();
+			}
+		}
+		return new ServerResult();
+	}
 
 	/** 把一个对象转换为map，key为字段，value为字段的值 */
 	public static Map<String, Object> introspect(Object obj) {

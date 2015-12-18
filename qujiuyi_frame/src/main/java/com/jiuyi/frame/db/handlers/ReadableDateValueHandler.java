@@ -17,7 +17,7 @@ public class ReadableDateValueHandler implements DbValueHandler {
 	@Override
 	public Object resolveValue(Field field, String columnName, Object columnValue) {
 		if (columnValue == null) {
-			return DateUtil.date2Str(new Date());
+			return null;
 		}
 		String pattern = field.getAnnotation(ReadableDate.class).value();
 		return DateUtil.date2Str((Date) columnValue, pattern);

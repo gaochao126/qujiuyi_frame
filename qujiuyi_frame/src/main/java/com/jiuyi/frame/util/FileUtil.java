@@ -88,7 +88,7 @@ public class FileUtil {
 
 	public static String getSuffix(MultipartFile file) {
 		String fileName = file.getOriginalFilename();
-		return fileName.substring(fileName.lastIndexOf("."));
+		return fileName.substring(fileName.lastIndexOf(".") + 1);
 	}
 	
 	/**

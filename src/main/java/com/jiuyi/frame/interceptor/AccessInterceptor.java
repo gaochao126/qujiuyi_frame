@@ -78,6 +78,8 @@ public class AccessInterceptor extends HandlerInterceptorAdapter {
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
 		super.afterCompletion(request, response, handler, ex);
 		if (ex != null) {
+			String url = request.getRequestURI();
+			Loggers.err(url + ":throw err,", ex);
 			WebUtil.writeResp(response, ResultConst.SERVER_ERR);
 		}
 	}

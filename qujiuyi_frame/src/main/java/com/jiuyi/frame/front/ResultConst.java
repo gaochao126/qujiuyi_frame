@@ -83,6 +83,8 @@ public enum ResultConst {
 	PERSONAL_PATIENT(34, "私人患者不能进行该项操作"),
 	/** 用户名和密码不能为空*/
 	NAME_PASSWD_NULL(35, "用户名和密码不能为空"),
+	/** 请更新token*/
+	PLEASE_UPDATE_TOKEN(36, "请更新token"),
 
 	// ===== 手机验证结果 =====
 	/** 发送短信成功 */

@@ -11,6 +11,9 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import com.jiuyi.frame.util.WebUtil;
 
 /**
+ * 
+ * 用于分页功能。前端若传入了page参数，则默认在select的时候加上limit语句来分页
+ * 
  * @author xutaoyang
  *
  */

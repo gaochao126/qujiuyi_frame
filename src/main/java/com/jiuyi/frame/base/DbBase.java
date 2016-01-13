@@ -16,6 +16,8 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import com.jiuyi.frame.db.RowData;
 import com.jiuyi.frame.db.mappers.MapperService;
+import com.jiuyi.frame.interceptor.PageInterceptor;
+import com.jiuyi.frame.interceptor.PageInterceptor.Page;
 import com.jiuyi.frame.util.CollectionUtil;
 import com.jiuyi.frame.util.ObjectUtil;
 import com.jiuyi.frame.util.StringUtil;
@@ -122,6 +124,37 @@ public class DbBase {
 		return jdbc.query(sql, args, mapperService.getRowMapper(clazz));
 	}
 
+	protected <T> List<T> queryForList(String sql, SqlParameterSource paramSource, Class<T> clazz) {
+		return namedJdbc.query(sql, paramSource, mapperService.getRowMapper(clazz));
+	}
+
+	/** 根据前端是否有传page字段判断是否需要分页查询 */
+	protected <T> List<T> queryForListPage(String sql, Class<T> clazz) {
+		return jdbc.query(getLimitSql(sql), mapperService.getRowMapper(clazz));
+	}
+
+	protected <T> List<T> queryForListPage(String sql, Object[] args, Class<T> clazz) {
+		return jdbc.query(getLimitSql(sql), args, mapperService.getRowMapper(clazz));
+	}
+
+	protected <T> List<T> queryForListPage(String sql, SqlParameterSource paramSource, Class<T> clazz) {
+		return namedJdbc.query(getLimitSql(sql), paramSource, mapperService.getRowMapper(clazz));
+	}
+
+	/** 构造分页查询语句 */
+	protected String getLimitSql(String sql) {
+		if (!sql.toLowerCase().startsWith("select")) {
+			return sql;
+		}
+		Page page = PageInterceptor.getThreadVarPage();
+		String cmd = sql;
+		if (page != null) {
+			cmd = cmd.endsWith(";") ? cmd.substring(0, cmd.length() - 1) : cmd;
+			cmd += " LIMIT " + startIndex(page.getPage(), page.getPageSize()) + "," + page.getPageSize();
+		}
+		return cmd;
+	}
+
 	protected <T> T queryForObjectDefaultBuilder(String sql, Class<T> clazz) {
 		List<T> list = queryForList(sql, clazz);
 		return CollectionUtil.isNullOrEmpty(list) ? null : list.get(0);
@@ -195,10 +228,6 @@ public class DbBase {
 	protected String formatSelectSql(String sql, Class<?> clazz, String... excepts) {
 		String columns = ObjectUtil.getFieldAsSelectColumns(clazz, excepts);
 		return String.format(sql, columns);
-	}
-
-	protected <T> List<T> queryForList(String sql, SqlParameterSource paramSource, Class<T> clazz) {
-		return namedJdbc.query(sql, paramSource, mapperService.getRowMapper(clazz));
 	}
 
 	protected <T> T queryForObject(String sql, SqlParameterSource paramSource, Class<T> clazz) {

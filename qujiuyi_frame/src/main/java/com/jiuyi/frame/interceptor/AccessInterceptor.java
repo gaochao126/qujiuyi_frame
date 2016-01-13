@@ -129,6 +129,7 @@ public class AccessInterceptor extends HandlerInterceptorAdapter {
 			params = JsonUtil.parseToElement(json);
 		} catch (Exception e) {
 			Loggers.err("parse req body param err", e);
+			return new ServerResult(ResultConst.PARAM_ERROR);
 		}
 		if (params != null) {
 			request.setAttribute(Constants.JSON_PARAM_ATTR, params);

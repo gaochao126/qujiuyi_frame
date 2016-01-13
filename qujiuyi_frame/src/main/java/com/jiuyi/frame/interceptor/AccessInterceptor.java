@@ -18,6 +18,7 @@ import com.google.gson.JsonElement;
 import com.jiuyi.frame.argsresolve.MethodInfo;
 import com.jiuyi.frame.argsresolve.MethodParamService;
 import com.jiuyi.frame.constants.Constants;
+import com.jiuyi.frame.front.FailResult;
 import com.jiuyi.frame.front.ResultConst;
 import com.jiuyi.frame.front.ServerResult;
 import com.jiuyi.frame.helper.Loggers;
@@ -129,6 +130,11 @@ public class AccessInterceptor extends HandlerInterceptorAdapter {
 			params = JsonUtil.parseToElement(json);
 		} catch (Exception e) {
 			Loggers.err("parse req body param err", e);
+			if (Loggers.isDebugEnabled()) {
+				FailResult fail = new FailResult("json 格式有错");
+				fail.put("json", json);
+				return fail;
+			}
 			return new ServerResult(ResultConst.PARAM_ERROR);
 		}
 		if (params != null) {

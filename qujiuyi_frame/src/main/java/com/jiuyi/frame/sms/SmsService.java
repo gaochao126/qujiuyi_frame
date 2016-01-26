@@ -12,6 +12,7 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.cloopen.rest.sdk.CCPRestSDK;
 import com.jiuyi.frame.helper.Loggers;
 import com.jiuyi.frame.sms.SmsCheckService.CheckResult;
 import com.jiuyi.frame.util.JsonUtil;
@@ -25,10 +26,22 @@ public class SmsService {
 	public static final int DEF_CONN_TIMEOUT = 30000;
 	public static final int DEF_READ_TIMEOUT = 30000;
 	public static String userAgent = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36";
-	private static final String url = "http://v.juhe.cn/sms/send";// 请求接口地址
 
-	// appkey
-	public static final String APPKEY = "049ecdd61e0d11b35db5a1c7812165f1";
+	// 短信相关
+	private static final String SMS_URL = "http://v.juhe.cn/sms/send";// 请求接口地址
+	public static final String SMS_APPKEY = "049ecdd61e0d11b35db5a1c7812165f1";
+
+	private static CCPRestSDK rongLianRestAPI;
+
+	static {
+		rongLianRestAPI = new CCPRestSDK();
+		rongLianRestAPI.init("app.cloopen.com", "8883");// 初始化服务器地址和端口，格式如下，服务器地址不需要写https://
+		String account = "8a48b5514e04a574014e0afb9cf70597";
+		String password = "3106b400532b43cbb21b27f510efbb30";
+		String appId = "aaf98f8952115304015215d4637008f5";
+		rongLianRestAPI.setAppId(appId);// 初始化应用ID
+		rongLianRestAPI.setAccount(account, password);
+	}
 
 	private static SmsService instance = new SmsService();
 
@@ -49,6 +62,29 @@ public class SmsService {
 	}
 
 	/**
+	 * 语音验证码
+	 * 
+	 * @param phone
+	 *            电话
+	 * @return
+	 */
+	public SmsResp sendVoiceCode(String phone) {
+		String code = genRandomCode();
+		HashMap<String, Object> result = rongLianRestAPI.voiceVerify(code, phone, null, "3", null, null, null);
+		if ("000000".equals(result.get("statusCode"))) {
+			SmsCheckService.instance().setCode(phone, code);
+			return new SmsResp("成功", 0);
+		} else {
+			return new SmsResp(result.get("statusMsg").toString(), 1);
+		}
+	}
+
+	public static void main(String[] args) {
+		 SmsResp res = SmsService.instance.sendVoiceCode("18223506390");
+		 System.out.println(res.toString());
+	}
+
+	/**
 	 * 短信验证码
 	 * 
 	 * @param phone
@@ -58,8 +94,11 @@ public class SmsService {
 	 * @return
 	 */
 	public SmsResp sendCode(String phone, String code) {
-		SmsCheckService.instance().setCode(phone, code);
-		return sendSms(phone, "6994", "#code#=" + code);
+		SmsResp res = sendSms(phone, "6994", "#code#=" + code);
+		if (res.isSuccess()) {
+			SmsCheckService.instance().setCode(phone, code);
+		}
+		return res;
 	}
 
 	/**
@@ -91,12 +130,11 @@ public class SmsService {
 		params.put("mobile", phone);// 接收短信的手机号码
 		params.put("tpl_id", templateId);// 短信模板ID，请参考个人中心短信模板设置
 		params.put("tpl_value", args);// 变量名和变量值对。如果你的变量名或者变量值中带有#&amp;=中的任意一个特殊符号，请先分别进行urlencode编码后再传递
-		params.put("key", APPKEY);// 应用APPKEY(应用详细页查询)
-		params.put("dtype", "json");// 返回数据的格式,xml或json，默认json
+		params.put("key", SMS_APPKEY);// 应用APPKEY(应用详细页查询)
 		SmsResp resp = null;
 		String result = null;
 		try {
-			result = net(url, params, "GET");
+			result = net(SMS_URL, params, "GET");
 			resp = JsonUtil.fromJson(result, SmsResp.class);
 		} catch (Exception e) {
 			resp = new SmsResp("网络错误", -1);

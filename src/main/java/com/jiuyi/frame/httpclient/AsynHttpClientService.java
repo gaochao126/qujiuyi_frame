@@ -105,7 +105,7 @@ public class AsynHttpClientService extends AbsHttpClient {
 				}
 				HttpPost post = genHttpPost(entity);
 				try {
-					String postEntity = EntityUtils.toString(post.getEntity());
+					String postEntity = EntityUtils.toString(post.getEntity(), DEFAULT_CHARSET);
 					Loggers.info(post + ", postEntity:" + postEntity);
 				} catch (ParseException | IOException e1) {
 					e1.printStackTrace();

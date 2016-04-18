@@ -19,10 +19,12 @@ public class StringUtil {
 
 	private static final Random random = new Random();
 	private static final String ALLCHAR = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-";
-	private static final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
+	private static final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern
+			.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
-	public static void main(String[] args) {
-		System.out.println(md5Str("123456"));
+	public static void main(String[] args) throws Exception {
+		System.out.println(shaEncode("123456").length());
+		System.out.println(md5Str("123456").length());
 	}
 
 	/**
@@ -155,6 +157,35 @@ public class StringUtil {
 			return sb.substring(0, sb.length() - 1);
 		}
 		return defaultValue;
+	}
+
+	/***
+	 * SHA加密 生成40位SHA码
+	 * 
+	 * @param 待加密字符串
+	 * @return 返回40位SHA码
+	 */
+	public static String shaEncode(String inStr) throws Exception {
+		MessageDigest sha = null;
+		try {
+			sha = MessageDigest.getInstance("SHA");
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			e.printStackTrace();
+			return "";
+		}
+
+		byte[] byteArray = inStr.getBytes("UTF-8");
+		byte[] md5Bytes = sha.digest(byteArray);
+		StringBuffer hexValue = new StringBuffer();
+		for (int i = 0; i < md5Bytes.length; i++) {
+			int val = ((int) md5Bytes[i]) & 0xff;
+			if (val < 16) {
+				hexValue.append("0");
+			}
+			hexValue.append(Integer.toHexString(val));
+		}
+		return hexValue.toString();
 	}
 
 }
